@@ -1,8 +1,12 @@
 {
   "profiles": {
-    "ImageFinder.Trainer": {
+    "New Learn": {
       "commandName": "Project",
       "commandLineArgs": "C:\\Sync\\Bilder\\ImageFinder\\Angler --out c:\\temp\\angler.bin"
+    },
+    "Relearn": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Sync\\Bilder\\ImageFinder\\Angler --init c:\\temp\\angler.bin --out c:\\temp\\anglerNew.bin --steps 1000"
     }
   }
 }
