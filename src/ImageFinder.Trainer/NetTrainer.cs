@@ -18,6 +18,9 @@ namespace ImageFinder.Trainer
         public float PositiveWeight { get; set; } = 3f;
         public float RegressionWeight { get; set; } = 2f;
         public int Seed { get; set; } = 1;
+
+        /// <summary>Vor dem ersten Schritt Fehlalarme suchen (sinnvoll beim Weitertrainieren).</summary>
+        public bool MineAtStart { get; set; }
     }
 
     /// <summary>Backpropagation + Adam für das Netz aus ImageFinder.Core.</summary>
@@ -61,6 +64,9 @@ namespace ImageFinder.Trainer
             var sw = Stopwatch.StartNew();
             double lossAcc = 0;
             int lossCount = 0;
+
+            if (_opt.MineAtStart)
+                MineHardNegatives(realImages);
 
             for (int step = 1; step <= _opt.Steps; step++)
             {

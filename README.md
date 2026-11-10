@@ -34,7 +34,22 @@ dotnet run -c Release --project src\ImageFinder.Trainer -- G:\Sync\Bilder\ImageF
 
 Optionen: `--steps` (3000), `--batch` (32), `--holdout <name>` (Bild nicht trainieren, nur testen),
 `--composites` (20 synthetische Bilder pro Target), `--seed`, `--lr`,
-`--evaluate <weights.bin>` (nicht trainieren, nur vorhandene Gewichte auswerten und Schwellwert neu setzen).
+`--evaluate <weights.bin>` (nicht trainieren, nur vorhandene Gewichte auswerten und Schwellwert neu setzen),
+`--init <weights.bin>` (mit vorhandenen Gewichten weitertrainieren).
+
+### Weitertrainieren mit neuen Bildern
+
+```
+dotnet run -c Release --project src\ImageFinder.Trainer -- G:\Sync\Bilder\ImageFinder\Angler --init weights\angler.bin --steps 1000 --out weights\angler.bin
+```
+
+Neue Bilder einfach in `Test` legen und in `pos.txt` eintragen, dann mit `--init` über **alle** Bilder
+weitertrainieren. Nur mit den neuen Bildern zu trainieren würde das Netz das alte Material vergessen lassen.
+Mit `--init` sinkt die Lernrate auf 0.0005 (änderbar mit `--lr`), und die Fehlalarm-Suche läuft sofort zu Beginn.
+Nach größeren Änderungen am Bildbestand ab und zu von vorn trainieren.
+
+Die Dauer eines Schritts hängt nicht von der Bildanzahl ab (pro Schritt werden 32 Ausschnitte gezogen).
+Nur die Fehlalarm-Suche alle 250 Schritte läuft über alle Bilder und wird mit mehr Bildern länger.
 
 Am Ende steht eine Tabelle: Konfidenz am echten Objekt, Positionsfehler, stärkster Fehlalarm
 und ob `FindBest` das richtige Ergebnis liefert. Der Schwellwert wird so gelegt, dass der beste

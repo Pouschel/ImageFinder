@@ -23,6 +23,8 @@ namespace ImageFinder.Trainer
             string output = "weights.bin";
             string? holdout = null;
             string? evaluate = null;
+            string? init = null;
+            bool lrGiven = false;
             var opt = new TrainOptions();
             int compositesPerTarget = 20;
 
@@ -37,7 +39,8 @@ namespace ImageFinder.Trainer
                     case "--evaluate": evaluate = Next(); break;
                     case "--steps": opt.Steps = int.Parse(Next()); break;
                     case "--batch": opt.BatchSize = int.Parse(Next()); break;
-                    case "--lr": opt.LearningRate = float.Parse(Next()); break;
+                    case "--lr": opt.LearningRate = float.Parse(Next()); lrGiven = true; break;
+                    case "--init": init = Next(); break;
                     case "--seed": opt.Seed = int.Parse(Next()); break;
                     case "--composites": compositesPerTarget = int.Parse(Next()); break;
                     default:
@@ -72,7 +75,20 @@ namespace ImageFinder.Trainer
             if (data.Holdout.Count > 0)
                 Console.WriteLine($"Zurückgehalten für den Test: {string.Join(", ", data.Holdout.Select(s => s.Name))}");
 
-            Network net = Network.CreateDefault(opt.Seed);
+            Network net;
+            if (init != null)
+            {
+                // Weitertrainieren: vorhandene Gewichte als Startpunkt, kleinere Lernrate,
+                // Fehlalarme sofort suchen (das alte Netz kennt seine Schwächen schon).
+                net = Network.Load(init);
+                if (!lrGiven) opt.LearningRate = 5e-4f;
+                opt.MineAtStart = true;
+                Console.WriteLine($"Starte mit Gewichten aus {init} (Lernrate {opt.LearningRate:G3}).");
+            }
+            else
+            {
+                net = Network.CreateDefault(opt.Seed);
+            }
             var trainer = new NetTrainer(net, opt);
             var sw = Stopwatch.StartNew();
             trainer.Train(data);
@@ -100,6 +116,8 @@ namespace ImageFinder.Trainer
             Console.WriteLine("  --out <datei>       Gewichtsdatei (Standard weights.bin)");
             Console.WriteLine("  --holdout <name>    Bild aus dem Training heraushalten und danach darauf testen");
             Console.WriteLine("  --evaluate <datei>  vorhandene Gewichte nur auswerten und Schwellwert neu setzen");
+            Console.WriteLine("  --init <datei>      mit vorhandenen Gewichten weitertrainieren (Lernrate dann 0.0005,");
+            Console.WriteLine("                      empfohlen z. B. --steps 1000)");
             Console.WriteLine("  --steps <n>         Trainingsschritte (Standard 3000)");
             Console.WriteLine("  --batch <n>         Ausschnitte pro Schritt (Standard 32)");
             Console.WriteLine("  --lr <x>            Lernrate (Standard 0.002)");
