@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ImageFinder.Trainer": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Sync\\Bilder\\ImageFinder\\Angler --out c:\\temp\\angler.bin"
+    }
+  }
+}
